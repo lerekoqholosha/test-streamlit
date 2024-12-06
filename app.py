@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
 import requests
-from base64 import b64encode
+from base64 import b64decode
 
 # GitHub API details
 GITHUB_TOKEN = "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"  # Replace with your GitHub token
 GITHUB_USERNAME = "lerekoqholoshat"  # Replace with your GitHub username
 REPO_NAME = "test-streamlit"  # Replace with your GitHub repo name
-FILE_PATH = "https://raw.githubusercontent.com/lerekoqholosha/test-streamlit/refs/heads/main/users.csv"  # Path to the file in the repo
+FILE_PATH = "users.csv"  # Path to the file in the repo (no raw URL here)
 BRANCH_NAME = "main"  # Branch you want to commit to
 
 # GitHub API URL for accessing the file
@@ -19,9 +19,9 @@ def get_csv_from_github():
     response = requests.get(API_URL, headers=headers)
     if response.status_code == 200:
         file_data = response.json()
-        content = file_data['content']
-        decoded_content = b64encode(content.encode()).decode()
-        return pd.read_csv(pd.compat.StringIO(decoded_content))
+        # Decode the base64 content
+        content = b64decode(file_data['content']).decode('utf-8')
+        return pd.read_csv(pd.compat.StringIO(content))
     else:
         st.error("Failed to fetch the CSV file from GitHub.")
         return pd.DataFrame(columns=["username", "school", "age"])
