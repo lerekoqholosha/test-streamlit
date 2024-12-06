@@ -15,7 +15,7 @@ COMMIT_MESSAGE = "Automated update " + str(datetime.datetime.now())
 
 # Function to get the file content from GitHub
 def get_file_from_github():
-    url = f'https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH_NAME}/{FILE_PATH}'
+    url = 'https://raw.githubusercontent.com/lerekoqholosha/test-streamlit/refs/heads/main/users.csv'
     response = requests.get(url)
     if response.status_code == 200:
         return pd.read_csv(response.text)
