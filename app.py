@@ -1,67 +1,50 @@
 import streamlit as st
+import sqlite3
 import pandas as pd
-import requests
-import base64
-import json
-import datetime
 
-# GitHub credentials and repository details
-GITHUB_TOKEN = "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"  # Replace with your GitHub token
-REPO_OWNER = "lerekoqholosha"  # Replace with your GitHub username
-REPO_NAME = "test-streamlit"  # Replace with your GitHub repo name
-FILE_PATH = "users.csv"  # Path to the file in the repo
-BRANCH_NAME = "main"  # Branch you want to commit to
-COMMIT_MESSAGE = "Automated update " + str(datetime.datetime.now())
+# Create a connection to the SQLite database
+# (if the file doesn't exist, it will be created)
+conn = sqlite3.connect("users.db")
+cursor = conn.cursor()
 
-# Function to get the file content from GitHub
-def get_file_from_github():
-    url = 'https://raw.githubusercontent.com/lerekoqholosha/test-streamlit/refs/heads/main/users.csv'
-    response = requests.get(url)
-    if response.status_code == 200:
-        return pd.read_csv(response.text)
-    else:
-        st.error(f"Failed to fetch the file from GitHub: {response.status_code}")
-        return pd.DataFrame(columns=["username", "school", "age"])
+# Create a table to store user data if it doesn't exist
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        school TEXT,
+        age INTEGER
+    )
+''')
+conn.commit()
 
-# Function to push the updated file back to GitHub
-def push_to_github(file_path, content, sha):
-    update_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{file_path}"
-    data = {
-        "path": file_path,
-        "branch": BRANCH_NAME,
-        "message": COMMIT_MESSAGE,
-        "content": base64.b64encode(content.encode()).decode()
-    }
+# Function to fetch data from the SQLite database
+def fetch_data():
+    cursor.execute("SELECT * FROM users")
+    rows = cursor.fetchall()
+    return pd.DataFrame(rows, columns=["id", "username", "school", "age"])
 
-    if sha:
-        data["sha"] = sha
+# Function to add a new user to the SQLite database
+def add_user(username, school, age):
+    cursor.execute("INSERT INTO users (username, school, age) VALUES (?, ?, ?)", (username, school, age))
+    conn.commit()
 
-    headers = {'Authorization': f'token {GITHUB_TOKEN}'}
-    response = requests.put(update_url, json=data, headers=headers)
-    
-    if response.status_code == 200:
-        st.success("CSV file updated successfully on GitHub!")
-    else:
-        st.error(f"Failed to update the file: {response.status_code} - {response.text}")
+# Function to update the SQLite database (not used here, but can be implemented if needed)
+def update_user(id, username, school, age):
+    cursor.execute("UPDATE users SET username = ?, school = ?, age = ? WHERE id = ?", (username, school, age, id))
+    conn.commit()
 
-# Function to get the sha of the file on GitHub
-def get_sha_from_github():
-    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}?ref={BRANCH_NAME}"
-    headers = {'Authorization': f'token {GITHUB_TOKEN}'}
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code == 200:
-        return response.json()['sha']
-    else:
-        st.error(f"Failed to fetch file details: {response.status_code} - {response.text}")
-        return None
+# Function to delete a user (not used here, but can be implemented if needed)
+def delete_user(id):
+    cursor.execute("DELETE FROM users WHERE id = ?", (id,))
+    conn.commit()
 
 # Streamlit app
 def app():
-    st.title("CSV Updater (GitHub)")
+    st.title("SQLite User Database")
 
-    # Load existing CSV data from GitHub
-    df = get_file_from_github()
+    # Load existing data from SQLite
+    df = fetch_data()
 
     # Show current data
     st.write("Current data:")
@@ -73,20 +56,18 @@ def app():
     age = st.number_input("Enter age", min_value=1, max_value=100)
 
     if st.button("Add Row"):
-        # Add new row
-        new_row = pd.DataFrame({"username": [username], "school": [school], "age": [age]})
-        updated_df = pd.concat([df, new_row], ignore_index=True)
+        # Add new user to the database
+        add_user(username, school, age)
+
+        # Reload the data
+        df = fetch_data()
         st.write("New row added:")
-        st.write(updated_df)
+        st.write(df)
 
-        # Get the sha of the existing file on GitHub
-        sha = get_sha_from_github()
-
-        # Convert the updated DataFrame to CSV format
-        updated_csv = updated_df.to_csv(index=False)
-
-        # Push the updated file back to GitHub
-        push_to_github(FILE_PATH, updated_csv, sha)
+    # Optional: Save the data to a CSV file
+    if st.button("Download CSV"):
+        df.to_csv("users_data.csv", index=False)
+        st.success("CSV file saved!")
 
 if __name__ == "__main__":
     app()
