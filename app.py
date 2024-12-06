@@ -7,7 +7,7 @@ from base64 import b64encode, b64decode
 GITHUB_TOKEN = "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"  # Replace with your GitHub token
 GITHUB_USERNAME = "lerekoqholosha"  # Replace with your GitHub username
 REPO_NAME = "test-streamlit"  # Replace with your GitHub repo name
-FILE_PATH = "users.csv"  # Path to the file in the repo
+FILE_PATH = "test-streamlit/blob/main/users.csv"  # Path to the file in the repo
 BRANCH_NAME = "main"  # Branch you want to commit to
 
 # GitHub API URL for accessing the file (correct URL)
