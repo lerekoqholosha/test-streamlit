@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
-from github import Github
 import requests
-from io import StringIO
+import base64
+import json
+import datetime
 
 # GitHub credentials and repository details
 GITHUB_TOKEN = "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"  # Replace with your GitHub token
@@ -10,42 +11,57 @@ REPO_OWNER = "lerekoqholosha"  # Replace with your GitHub username
 REPO_NAME = "test-streamlit"  # Replace with your GitHub repo name
 FILE_PATH = "users.csv"  # Path to the file in the repo
 BRANCH_NAME = "main"  # Branch you want to commit to
-COMMIT_MESSAGE = "Updated CSV file via Streamlit"
+COMMIT_MESSAGE = "Automated update " + str(datetime.datetime.now())
 
-# Initialize PyGithub with the token
-github = Github(GITHUB_TOKEN)
-repo = github.get_user(REPO_OWNER).get_repo(REPO_NAME)
-
-# Function to read the CSV file from GitHub
-def get_csv_from_github():
+# Function to get the file content from GitHub
+def get_file_from_github():
     url = f'https://raw.githubusercontent.com/{REPO_OWNER}/{REPO_NAME}/{BRANCH_NAME}/{FILE_PATH}'
     response = requests.get(url)
-    
     if response.status_code == 200:
-        df = pd.read_csv(StringIO(response.text))
-        return df
+        return pd.read_csv(response.text)
     else:
-        st.error("Failed to fetch the CSV file from GitHub.")
+        st.error(f"Failed to fetch the file from GitHub: {response.status_code}")
         return pd.DataFrame(columns=["username", "school", "age"])
 
-# Function to update the CSV file on GitHub
-def update_csv_on_github(updated_df):
-    # Get the current content of the file from the repository
-    content = repo.get_contents(FILE_PATH)
+# Function to push the updated file back to GitHub
+def push_to_github(file_path, content, sha):
+    update_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{file_path}"
+    data = {
+        "path": file_path,
+        "branch": BRANCH_NAME,
+        "message": COMMIT_MESSAGE,
+        "content": base64.b64encode(content.encode()).decode()
+    }
+
+    if sha:
+        data["sha"] = sha
+
+    headers = {'Authorization': f'token {GITHUB_TOKEN}'}
+    response = requests.put(update_url, json=data, headers=headers)
     
-    # Convert the DataFrame to CSV format
-    new_content = updated_df.to_csv(index=False)
+    if response.status_code == 200:
+        st.success("CSV file updated successfully on GitHub!")
+    else:
+        st.error(f"Failed to update the file: {response.status_code} - {response.text}")
+
+# Function to get the sha of the file on GitHub
+def get_sha_from_github():
+    url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}?ref={BRANCH_NAME}"
+    headers = {'Authorization': f'token {GITHUB_TOKEN}'}
+    response = requests.get(url, headers=headers)
     
-    # Update the file on GitHub
-    repo.update_file(FILE_PATH, COMMIT_MESSAGE, new_content, content.sha)
-    st.success("CSV file updated successfully on GitHub!")
+    if response.status_code == 200:
+        return response.json()['sha']
+    else:
+        st.error(f"Failed to fetch file details: {response.status_code} - {response.text}")
+        return None
 
 # Streamlit app
 def app():
     st.title("CSV Updater (GitHub)")
 
     # Load existing CSV data from GitHub
-    df = get_csv_from_github()
+    df = get_file_from_github()
 
     # Show current data
     st.write("Current data:")
@@ -63,8 +79,14 @@ def app():
         st.write("New row added:")
         st.write(updated_df)
 
-        # Update the CSV on GitHub
-        update_csv_on_github(updated_df)
+        # Get the sha of the existing file on GitHub
+        sha = get_sha_from_github()
+
+        # Convert the updated DataFrame to CSV format
+        updated_csv = updated_df.to_csv(index=False)
+
+        # Push the updated file back to GitHub
+        push_to_github(FILE_PATH, updated_csv, sha)
 
 if __name__ == "__main__":
     app()
