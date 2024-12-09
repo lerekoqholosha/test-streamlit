@@ -247,7 +247,7 @@ def main():
             issuer_email=st.text_input("issuer_email")
 
             if st.button("Log Issue"):
-                result = log_issue(issue_code, name, description, issue_status, principal_risk_type,subrisk_type, business_unit,   bu_rating,  agl_rating, assurance_provider, due_date,  financially_implicated, review_name, issue_number_and_title, , date_submitted_to_risk_assurance, date_submitted_to_risk_assurance, ra_reviewers, closure_email_or_feedback_date, issuer_name, issuer_email, st.session_state.username)
+                result = log_issue(issue_code, name, description, issue_status, principal_risk_type,subrisk_type, business_unit,   bu_rating,  agl_rating, assurance_provider, due_date,  financially_implicated, review_name, issue_number_and_title, date_submitted_to_risk_assurance, date_submitted_to_risk_assurance, ra_reviewers, closure_email_or_feedback_date, issuer_name, issuer_email, st.session_state.username)
                 st.success(result)
         else:
             st.warning("Please login to log an issue.")
