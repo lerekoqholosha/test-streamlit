@@ -1,6 +1,6 @@
 import sqlite3
 import random
-import pandas pd
+import pandas as pd
 def create_db():
     # Connect to SQLite database (it will create the file if it doesn't exist)
     conn = sqlite3.connect('tracker.db')
