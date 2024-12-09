@@ -218,8 +218,10 @@ def main():
         signup_page()
     elif page == "View Current Issues":
         st.header("View Issues")
-        issues,column = view_all_issues()
-        st.write(pd.DataFrame(issues,columns=column))
+        issues= view_all_issues()
+        # Fetch column names dynamically from the query
+        columns = [description[0] for description in cursor.description]
+        st.write(pd.DataFrame(issues,columns=columns))
         for issue in issues:
             st.write(issue)
 
