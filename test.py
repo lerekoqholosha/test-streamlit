@@ -125,6 +125,29 @@ from hashlib import sha256
 # Helper function to hash password
 def hash_password(password):
     return sha256(password.encode('utf-8')).hexdigest()
+def signup_page():
+    st.title("Signup - Register")
+
+    # User input fields
+    username = st.text_input("Enter Username")
+    password = st.text_input("Enter Password", type="password")
+    confirm_password = st.text_input("Confirm Password", type="password")
+
+    # Validate user inputs and handle signup
+    if st.button("Sign Up"):
+        if not username or not password:
+            st.error("Please fill in both fields.")
+        elif password != confirm_password:
+            st.error("Passwords do not match!")
+        elif username_exists(username):
+            st.error("Username already exists. Please choose another one.")
+        else:
+            # If all checks pass, proceed to signup
+            result = signup(username, password)
+            if result == "Signup successful!":
+                st.success(result)
+            else:
+                st.error(result)
 
 # Streamlit UI
 def main():
@@ -159,7 +182,9 @@ def main():
                 st.success(result)
         else:
             st.warning("Please login to log an issue.")
-
+    
+    elif page == "Signup":
+        signup_page()
     elif page == "View Current Issues":
         st.header("View Issues")
         issues = view_all_issues()
