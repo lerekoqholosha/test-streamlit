@@ -1,5 +1,5 @@
 import sqlite3
-
+import random
 def create_db():
     # Connect to SQLite database (it will create the file if it doesn't exist)
     conn = sqlite3.connect('tracker.db')
