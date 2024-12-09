@@ -40,15 +40,16 @@ def create_db():
     conn.close()
 
 create_db()  # Create the database and tables
+# Function to insert a new user into the database
 def signup(username, password):
     conn = sqlite3.connect('tracker.db')
     c = conn.cursor()
 
-    # Hash the password before saving
+    # Hash the password before saving it
     hashed_password = hash_password(password)
-    
+
     try:
-        # Insert new user into the 'users' table
+        # Insert the new user into the 'users' table
         c.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
         conn.commit()
         return "Signup successful!"
@@ -56,6 +57,7 @@ def signup(username, password):
         return "Username already exists."
     finally:
         conn.close()
+
 def login(username, password):
     conn = sqlite3.connect('tracker.db')
     c = conn.cursor()
@@ -125,6 +127,7 @@ from hashlib import sha256
 # Helper function to hash password
 def hash_password(password):
     return sha256(password.encode('utf-8')).hexdigest()
+# Streamlit Signup UI
 def signup_page():
     st.title("Signup - Register")
 
@@ -148,6 +151,8 @@ def signup_page():
                 st.success(result)
             else:
                 st.error(result)
+
+
 
 # Streamlit UI
 def main():
