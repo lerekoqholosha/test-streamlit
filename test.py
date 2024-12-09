@@ -220,7 +220,9 @@ def main():
         st.header("View Issues")
         issues= view_all_issues()
         # Fetch column names dynamically from the query
-        columns = [description[0] for description in cursor.description]
+        conn = sqlite3.connect('tracker.db')
+        c = conn.cursor()
+        columns = [description[0] for description in c.description]
         st.write(pd.DataFrame(issues,columns=columns))
         for issue in issues:
             st.write(issue)
