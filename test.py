@@ -218,8 +218,8 @@ def main():
         signup_page()
     elif page == "View Current Issues":
         st.header("View Issues")
-        issues = view_all_issues()
-        st.write(pd.DataFrame(issues))
+        issues,column = view_all_issues()
+        st.write(pd.DataFrame(issues,column=column))
         for issue in issues:
             st.write(issue)
 
