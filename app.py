@@ -239,7 +239,7 @@ def main():
             financially_implicated=st.selectbox(" financially_implicated",["Yes","NO"])
             review_name=st.text_input("review_name")
             issue_number_and_title=st.text_input("issue_number_and_title")
-            date_submitted_to_risk_assurance=st.text_inpu("date_submitted_to_risk_assurance")
+            date_submitted_to_risk_assurance=st.text_input("date_submitted_to_risk_assurance")
             ra_reviewers=st.text_input("ra_reviewers")
             closure_email_or_feedback_date=st.date_input("closure_email_or_feedback_date")
             issuer_name=st.text_input("issuer_name")
