@@ -219,7 +219,7 @@ def main():
     elif page == "View Current Issues":
         st.header("View Issues")
         issues,column = view_all_issues()
-        st.write(pd.DataFrame(issues,column=column))
+        st.write(pd.DataFrame(issues,columns=column))
         for issue in issues:
             st.write(issue)
 
