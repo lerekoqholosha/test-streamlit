@@ -180,6 +180,28 @@ def generate_unique_code():
         if existing_code is None:  # Code is unique
             conn.close()
             return code
+# Function to fetch data from SQL dynamically
+def fetch_data_from_sql():
+    # Connect to the SQLite database
+    conn = sqlite3.connect('tracker.db')
+    c = conn.cursor()
+
+    # Execute your SQL query (change this to your actual query)
+    query = "SELECT * FROM issues"  # Example query
+    c.execute(query)
+
+    # Fetch the column names dynamically from the query
+    columns = [description[0] for description in c.description]
+
+    # Fetch the data
+    data = c.fetchall()
+
+    # Convert to DataFrame and close the connection
+    df = pd.DataFrame(data, columns=columns)
+
+    conn.close()
+    
+    return df
 # Streamlit UI
 def main():
     st.title("Issue Tracker App")
@@ -219,11 +241,12 @@ def main():
     elif page == "View Current Issues":
         st.header("View Issues")
         issues= view_all_issues()
-        # Fetch column names dynamically from the query
-        conn = sqlite3.connect('tracker.db')
-        c = conn.cursor()
-        columns = [description[0] for description in c.description]
-        st.write(pd.DataFrame(issues,columns=columns))
+        # Fetch data from SQL
+        df = fetch_data_from_sql()
+    
+       # Display the data
+       st.write("Issues in the Database:")
+       st.write(df)
         for issue in issues:
             st.write(issue)
 
