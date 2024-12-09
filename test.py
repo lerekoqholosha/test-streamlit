@@ -244,9 +244,9 @@ def main():
         # Fetch data from SQL
         df = fetch_data_from_sql()
     
-       # Display the data
-       st.write("Issues in the Database:")
-       st.write(df)
+        # Display the data
+        st.write("Issues in the Database:")
+        st.write(df)
         for issue in issues:
             st.write(issue)
 
