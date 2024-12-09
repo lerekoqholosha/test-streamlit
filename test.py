@@ -153,7 +153,7 @@ def signup_page():
 def main():
     st.title("Issue Tracker App")
 
-    page = st.sidebar.radio("Navigation", ["Login", "View Current Issues", "Log Issue", "Update Issue"])
+    page = st.sidebar.radio("Navigation", ["Login", "View Current Issues", "Log Issue", "Signup","Update Issue"])
 
     if page == "Login":
         st.header("Login")
