@@ -163,7 +163,22 @@ def signup_page():
                 st.error(result)
 
 
-
+# Function to generate a unique issue code
+def generate_unique_code():
+    conn = sqlite3.connect('tracker.db')
+    c = conn.cursor()
+    
+    while True:
+        # Generate a random four-digit code
+        code = str(random.randint(1000, 9999))
+        
+        # Check if the code already exists in the 'issues' table
+        c.execute("SELECT * FROM issues WHERE issue_code = ?", (code,))
+        existing_code = c.fetchone()
+        
+        if existing_code is None:  # Code is unique
+            conn.close()
+            return code
 # Streamlit UI
 def main():
     st.title("Issue Tracker App")
