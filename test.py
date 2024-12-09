@@ -40,6 +40,16 @@ def create_db():
     conn.close()
 
 create_db()  # Create the database and tables
+# Function to check if the username already exists in the database
+def username_exists(username):
+    conn = sqlite3.connect('tracker.db')
+    c = conn.cursor()
+
+    c.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = c.fetchone()
+
+    conn.close()
+    return user is not None
 # Function to insert a new user into the database
 def signup(username, password):
     conn = sqlite3.connect('tracker.db')
