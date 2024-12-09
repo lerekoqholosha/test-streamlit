@@ -1,5 +1,6 @@
 import sqlite3
 import random
+import pandas pd
 def create_db():
     # Connect to SQLite database (it will create the file if it doesn't exist)
     conn = sqlite3.connect('tracker.db')
@@ -219,7 +220,7 @@ def main():
         st.header("View Issues")
         issues = view_all_issues()
         for issue in issues:
-            st.write(issue)
+            st.write(pd.DataFrame(issue))
 
     elif page == "Update Issue":
         st.header("Update Issue")
