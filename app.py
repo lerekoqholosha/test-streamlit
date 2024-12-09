@@ -229,7 +229,7 @@ def main():
             name = st.text_input("Issue Name")
             description = st.text_area("Description")
             issue_status = st.selectbox("Status", ["Open", "Closed","Risk Accepted", "Overdue"])
-            principal_risk_type.st.text_input("Risk Type")
+            principal_risk_type=st.text_input("Risk Type")
             subrisk_type =st.text_input("subrisk_type")
             business_unit= st.text_input(" business_unit")
             bu_rating=st.text_input("bu_rating")
